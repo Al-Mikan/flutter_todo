@@ -1,3 +1,4 @@
+import 'package:clear_tasks/genre.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -9,8 +10,8 @@ class TaskListPage extends StatefulWidget {
   const TaskListPage(
       {super.key, required this.genre, required this.removeGenre});
 
-  final String genre;
-  final void Function(String) removeGenre;
+  final Genre genre;
+  final void Function(Genre) removeGenre;
 
   @override
   State<TaskListPage> createState() => _TaskListPageState();
@@ -22,7 +23,7 @@ class _TaskListPageState extends State<TaskListPage> {
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.white,
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.genre), // 選択されたジャンル名を表示
+        middle: Text(widget.genre.title), // 選択されたジャンル名を表示
         trailing: PullDownButton(
           itemBuilder: (context) => [
             PullDownMenuItem(
@@ -54,7 +55,7 @@ class _TaskListPageState extends State<TaskListPage> {
     );
   }
 
-  void _navigateToEditList(BuildContext context, String genre) {
+  void _navigateToEditList(BuildContext context, Genre genre) {
     Navigator.push(
       context,
       CupertinoPageRoute(

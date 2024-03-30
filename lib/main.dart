@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
       icon: CupertinoIcons.check_mark,
     ),
   ];
-  void _navigateToTaskList(BuildContext context, String genre) {
+  void _navigateToTaskList(BuildContext context, Genre genre) {
     Navigator.push(
       context,
       CupertinoPageRoute(
@@ -61,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _navigateToEditList(BuildContext context, String genre) {
+  void _navigateToEditList(BuildContext context, Genre genre) {
     Navigator.push(
       context,
       CupertinoPageRoute(
@@ -72,10 +72,11 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _removeGenre(String title) {
+  void _removeGenre(Genre genre) {
     setState(() {
-      // タイトルが一致する最初のアイテムのインデックスを見つける
-      int index = genres.indexWhere((genre) => genre.title == title);
+      //一致する最初のアイテムのインデックスを見つける
+      final index = genres.indexWhere((element) => element == genre);
+
       // 該当するアイテムが見つかった場合、そのインデックスを使用して削除
       if (index != -1) {
         genres.removeAt(index);
@@ -98,7 +99,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     const Text('My Tasks'), // セクションのヘッダー
                     CupertinoButton(
                       padding: EdgeInsets.zero,
-                      onPressed: () => _navigateToEditList(context, ''),
+                      onPressed: () => _navigateToEditList(
+                        context,
+                        Genre(
+                          title: '',
+                          tasksCount: 0,
+                          color: CupertinoColors.systemRed,
+                          icon: CupertinoIcons.list_bullet,
+                        ),
+                      ),
                       child: const Text("Add Lists"),
                     )
                   ],
@@ -123,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Icon(genre.icon, color: CupertinoColors.white),
                       )),
                     ),
-                    onTap: () => _navigateToTaskList(context, genre.title),
+                    onTap: () => _navigateToTaskList(context, genre),
                     trailing: const CupertinoListTileChevron(),
                   );
                 }).toList()),
