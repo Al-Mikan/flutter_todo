@@ -1,10 +1,8 @@
 import 'package:clear_tasks/genre.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pull_down_button/pull_down_button.dart';
 
-import './edit_list_page.dart';
+import 'edit_list_page.dart';
 
 class TaskListPage extends StatefulWidget {
   const TaskListPage(
@@ -71,7 +69,7 @@ class _TaskListPageState extends State<TaskListPage> {
         context: context,
         builder: (context) {
           return CupertinoAlertDialog(
-            title: Text('Delete List ”${widget.genre}”?'),
+            title: Text('Delete List ”${widget.genre.title}”?'),
             content: const Text('This will delete all tasks in this lists.'),
             actions: [
               CupertinoDialogAction(

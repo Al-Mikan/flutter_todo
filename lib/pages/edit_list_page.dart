@@ -3,18 +3,43 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class EditListPage extends StatefulWidget {
-  final Genre genre;
+import 'task_list_page.dart';
 
+class EditListPage extends StatefulWidget {
   const EditListPage({super.key, required this.genre});
+
+  final Genre genre;
 
   @override
   State<EditListPage> createState() => _EditListPageState();
 }
 
 class _EditListPageState extends State<EditListPage> {
-  Color? selectedColor = CupertinoColors.systemRed; // 選択された色を保持する変数
-  IconData? selectedIcon = CupertinoIcons.list_bullet; // 選択されたアイコンを保持する変数
+  late TextEditingController _listNameController =
+      TextEditingController(text: widget.genre.title);
+  Color selectedColor = CupertinoColors.systemRed; // 選択された色を保持する変数
+  IconData selectedIcon = CupertinoIcons.list_bullet; // 選択されたアイコンを保持する変数
+
+  @override
+  void initState() {
+    super.initState();
+    _listNameController = TextEditingController(text: widget.genre.title);
+    _listNameController.addListener(_updateState);
+  }
+
+  @override
+  void dispose() {
+    _listNameController.dispose();
+    super.dispose();
+  }
+
+  void _updateState() {
+    setState(() {
+      // setState内で何もしなくても、_titleController.textの状態が変わるたびに
+      // buildメソッドが再実行され、UIが更新される
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final isCreatingNewList = widget.genre.title.isEmpty;
@@ -31,10 +56,18 @@ class _EditListPageState extends State<EditListPage> {
           onPressed: () => Navigator.pop(context),
         ),
         trailing: CupertinoButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => {Navigator.pop(context)},
           padding: EdgeInsets.zero,
-          child:
-              const Text('Done', style: TextStyle(fontWeight: FontWeight.w600)),
+          child: Text(
+            'Done',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              // テキストが空の場合は色を薄くする
+              color: _listNameController.text.isNotEmpty
+                  ? CupertinoColors.activeBlue
+                  : CupertinoColors.inactiveGray,
+            ),
+          ),
         ),
         border: null,
         backgroundColor: CupertinoColors.extraLightBackgroundGray,
@@ -79,7 +112,7 @@ class _EditListPageState extends State<EditListPage> {
           CupertinoTextField(
             padding: const EdgeInsets.all(14.0),
             autofocus: true,
-            controller: TextEditingController(text: widget.genre.title),
+            controller: _listNameController,
             clearButtonMode: OverlayVisibilityMode.editing,
             decoration: BoxDecoration(
               color: CupertinoColors.systemGrey5,
@@ -126,7 +159,7 @@ class _EditListPageState extends State<EditListPage> {
                 color: colors[index],
                 shape: BoxShape.circle,
                 border: selectedColor == colors[index]
-                    ? Border.all(color: CupertinoColors.black, width: 2)
+                    ? Border.all(color: CupertinoColors.systemGrey, width: 3)
                     : null,
               ),
             ),
@@ -194,7 +227,7 @@ class _EditListPageState extends State<EditListPage> {
     CupertinoColors.systemPink,
     CupertinoColors.systemPurple,
     CupertinoColors.systemBrown,
-    CupertinoColors.systemGrey,
+    CupertinoColors.black,
   ];
   final List<IconData> icons = [
     CupertinoIcons.list_bullet,
