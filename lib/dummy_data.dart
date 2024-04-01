@@ -4,20 +4,20 @@ import 'genre.dart';
 List<Genre> myLists = [
   Genre(
     title: 'Sample',
-    tasksCount: 0,
     color: CupertinoColors.systemRed,
     icon: CupertinoIcons.calendar_today,
+    defaultGenre: false,
   ),
   Genre(
     title: 'Sample2',
-    tasksCount: 0,
     color: CupertinoColors.systemBlue,
     icon: CupertinoIcons.paperclip,
+    defaultGenre: false,
   ),
   Genre(
     title: 'Sample3',
-    tasksCount: 0,
     color: CupertinoColors.systemBlue,
     icon: CupertinoIcons.paperclip,
+    defaultGenre: false,
   )
 ];

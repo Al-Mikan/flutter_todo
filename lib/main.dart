@@ -37,31 +37,31 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Genre> genres = [
     Genre(
       title: 'Today',
-      tasksCount: 0,
       color: CupertinoColors.systemRed,
       icon: CupertinoIcons.calendar_today,
+      defaultGenre: true,
     ),
     Genre(
-        title: 'Scheduled',
-        tasksCount: 0,
-        color: CupertinoColors.systemBlue,
-        icon: CupertinoIcons.paperclip),
+      title: 'Scheduled',
+      color: CupertinoColors.systemBlue,
+      icon: CupertinoIcons.paperclip,
+      defaultGenre: true,
+    ),
     Genre(
         title: 'All',
-        tasksCount: 0,
         color: CupertinoColors.black,
-        icon: CupertinoIcons.tray_fill),
+        icon: CupertinoIcons.tray_fill,
+        defaultGenre: true),
     Genre(
         title: 'Star',
-        tasksCount: 0,
         color: CupertinoColors.systemYellow,
-        icon: CupertinoIcons.star_fill),
+        icon: CupertinoIcons.star_fill,
+        defaultGenre: true),
     Genre(
-      title: 'Completed',
-      tasksCount: 0,
-      color: CupertinoColors.systemGrey,
-      icon: CupertinoIcons.check_mark,
-    ),
+        title: 'Completed',
+        color: CupertinoColors.systemGrey,
+        icon: CupertinoIcons.check_mark,
+        defaultGenre: true),
   ];
 
   void _navigateToTaskList(BuildContext context, Genre genre) {
@@ -126,9 +126,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           padding: const EdgeInsets.symmetric(vertical: 15.0),
                           child: Text(genre.title),
                         ),
-                        additionalInfo: genre.title == "Completed"
-                            ? null
-                            : Text(genre.tasksCount.toString()),
+                        additionalInfo:
+                            genre.title == "Completed" ? null : Text("0"),
                         leading: Container(
                           width: 34,
                           height: 34,
@@ -163,9 +162,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               context,
                               Genre(
                                 title: '',
-                                tasksCount: 0,
                                 color: CupertinoColors.systemRed,
                                 icon: CupertinoIcons.list_bullet,
+                                defaultGenre: false,
                               ),
                             ),
                             child: const Text("Add List"),
@@ -180,7 +179,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           padding: const EdgeInsets.symmetric(vertical: 15.0),
                           child: Text(genre.title),
                         ),
-                        additionalInfo: Text(genre.tasksCount.toString()),
+                        additionalInfo: Text("0"),
                         leading: Container(
                           width: 34,
                           height: 34,

@@ -56,7 +56,9 @@ class _EditListPageState extends State<EditListPage> {
           onPressed: () => Navigator.pop(context),
         ),
         trailing: CupertinoButton(
-          onPressed: () => {Navigator.pop(context)},
+          onPressed: _listNameController.text.isNotEmpty
+              ? () => Navigator.pop(context)
+              : null,
           padding: EdgeInsets.zero,
           child: Text(
             'Done',
