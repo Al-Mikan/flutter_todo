@@ -22,28 +22,31 @@ class _TaskListPageState extends State<TaskListPage> {
       backgroundColor: CupertinoColors.white,
       navigationBar: CupertinoNavigationBar(
         middle: Text(widget.genre.title), // 選択されたジャンル名を表示
-        trailing: PullDownButton(
-          itemBuilder: (context) => [
-            PullDownMenuItem(
-              title: 'Show List Info',
-              icon: CupertinoIcons.info,
-              onTap: () => _navigateToEditList(context, widget.genre),
-            ),
-            PullDownMenuItem(
-              title: 'Delete List',
-              isDestructive: true,
-              icon: CupertinoIcons.delete,
-              onTap: () {
-                _showDialog();
-              },
-            ),
-          ],
-          buttonBuilder: (context, showMenu) => CupertinoButton(
-            onPressed: showMenu,
-            padding: EdgeInsets.zero,
-            child: const Icon(CupertinoIcons.ellipsis_circle),
-          ),
-        ),
+        trailing: widget.genre.defaultGenre
+            ? null
+            : PullDownButton(
+                itemBuilder: (context) => [
+                  PullDownMenuItem(
+                    title: 'Show List Info',
+                    icon: CupertinoIcons.info,
+                    onTap: () => _navigateToEditList(context, widget.genre),
+                  ),
+                  PullDownMenuItem(
+                    title: 'Delete List',
+                    isDestructive: true,
+                    icon: CupertinoIcons.delete,
+                    onTap: () {
+                      _showDialog();
+                    },
+                  ),
+                ],
+                buttonBuilder: (context, showMenu) => CupertinoButton(
+                  onPressed: showMenu,
+                  padding: EdgeInsets.zero,
+                  child: const Icon(CupertinoIcons.ellipsis_circle),
+                ),
+              ),
+
         border: null,
         backgroundColor: CupertinoColors.white,
       ),
