@@ -1,8 +1,6 @@
-import 'package:clear_tasks/genre.dart';
+import 'package:clear_tasks/models/genre.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import '../dummy_data.dart';
+import '../utils/icon_utils.dart';
 
 class SelectListPage extends StatelessWidget {
   final List<Genre> myList;
@@ -48,12 +46,12 @@ class SelectListPage extends StatelessWidget {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: genre.color,
+                  color: Color(genre.color),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Center(
                   child: Icon(
-                    genre.icon,
+                    IconUtils.getIconFromCodePoint(genre.icon),
                     color: CupertinoColors.white,
                     size: 20,
                   ),

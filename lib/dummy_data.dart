@@ -1,23 +1,26 @@
 import 'package:flutter/cupertino.dart';
-import 'genre.dart';
+import 'models/genre.dart';
 
 List<Genre> myLists = [
   Genre(
-    title: 'Sample',
-    color: CupertinoColors.systemRed,
-    icon: CupertinoIcons.calendar_today,
-    defaultGenre: false,
-  ),
+      title: 'Sample',
+      color: CupertinoColors.systemRed.value,
+      icon: CupertinoIcons.calendar_today.codePoint,
+      defaultGenre: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now()),
   Genre(
-    title: 'Sample2',
-    color: CupertinoColors.systemBlue,
-    icon: CupertinoIcons.paperclip,
-    defaultGenre: false,
-  ),
+      title: 'Sample2',
+      color: CupertinoColors.systemBlue.value,
+      icon: CupertinoIcons.paperclip.codePoint,
+      defaultGenre: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now()),
   Genre(
-    title: 'Sample3',
-    color: CupertinoColors.systemBlue,
-    icon: CupertinoIcons.paperclip,
-    defaultGenre: false,
-  )
+      title: 'Sample3',
+      color: CupertinoColors.systemBlue.value,
+      icon: CupertinoIcons.paperclip.codePoint,
+      defaultGenre: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now())
 ];

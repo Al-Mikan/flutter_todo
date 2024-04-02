@@ -1,24 +1,42 @@
 import 'package:clear_tasks/widgets/add_task_button.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:isar/isar.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'pages/edit_list_page.dart';
-import 'genre.dart';
+import 'models/genre.dart';
+import 'models/task.dart';
 import 'pages/task_list_page.dart';
 import 'pages/add_task_page.dart';
 import 'dummy_data.dart';
 
-void main() => runApp(const MyApp());
+import 'utils/icon_utils.dart';
+import 'repositories/genre_repository.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final dir = await getApplicationDocumentsDirectory();
+  final isar = await Isar.open(
+    [GenreSchema, TaskSchema],
+    directory: dir.path,
+  );
+
+  // GenreRepositoryのインスタンスを作成
+  final genreRepository = GenreRepository(isar);
+
+  runApp(MyApp(genreRepository: genreRepository));
+}
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final GenreRepository genreRepository;
+
+  const MyApp({super.key, required this.genreRepository});
 
   @override
   Widget build(BuildContext context) {
-    return const CupertinoApp(
-      home: MyHomePage(),
-      theme: CupertinoThemeData(
+    return CupertinoApp(
+      home: MyHomePage(genreRepository: genreRepository),
+      theme: const CupertinoThemeData(
         brightness: Brightness.light,
         primaryColor: CupertinoColors.systemBlue,
       ),
@@ -27,7 +45,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+  final GenreRepository genreRepository;
+
+  const MyHomePage({super.key, required this.genreRepository});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -36,32 +56,40 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<Genre> genres = [
     Genre(
-      title: 'Today',
-      color: CupertinoColors.systemRed,
-      icon: CupertinoIcons.calendar_today,
-      defaultGenre: true,
-    ),
+        title: 'Today',
+        color: CupertinoColors.systemRed.value,
+        icon: CupertinoIcons.calendar_today.codePoint,
+        defaultGenre: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now()),
     Genre(
-      title: 'Scheduled',
-      color: CupertinoColors.systemBlue,
-      icon: CupertinoIcons.paperclip,
-      defaultGenre: true,
-    ),
+        title: 'Scheduled',
+        color: CupertinoColors.systemBlue.value,
+        icon: CupertinoIcons.paperclip.codePoint,
+        defaultGenre: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now()),
     Genre(
         title: 'All',
-        color: CupertinoColors.black,
-        icon: CupertinoIcons.tray_fill,
-        defaultGenre: true),
+        color: CupertinoColors.black.value,
+        icon: CupertinoIcons.tray_fill.codePoint,
+        defaultGenre: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now()),
     Genre(
         title: 'Star',
-        color: CupertinoColors.systemYellow,
-        icon: CupertinoIcons.star_fill,
-        defaultGenre: true),
+        color: CupertinoColors.systemYellow.value,
+        icon: CupertinoIcons.star_fill.codePoint,
+        defaultGenre: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now()),
     Genre(
         title: 'Completed',
-        color: CupertinoColors.systemGrey,
-        icon: CupertinoIcons.check_mark,
-        defaultGenre: true),
+        color: CupertinoColors.systemGrey.value,
+        icon: CupertinoIcons.check_mark.codePoint,
+        defaultGenre: true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now()),
   ];
 
   void _navigateToTaskList(BuildContext context, Genre genre) {
@@ -118,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   CupertinoListSection.insetGrouped(
                     backgroundColor: CupertinoColors.extraLightBackgroundGray,
-                    header: Text('Genre'),
+                    header: const Text('Genre'),
                     children: genres.map((genre) {
                       return CupertinoListTile(
                         backgroundColor: CupertinoColors.white,
@@ -126,18 +154,19 @@ class _MyHomePageState extends State<MyHomePage> {
                           padding: const EdgeInsets.symmetric(vertical: 15.0),
                           child: Text(genre.title),
                         ),
-                        additionalInfo:
-                            genre.title == "Completed" ? null : Text("0"),
+                        additionalInfo: genre.title == "Completed"
+                            ? null
+                            : const Text("ndjs"),
                         leading: Container(
                           width: 34,
                           height: 34,
                           decoration: BoxDecoration(
-                            color: genre.color,
+                            color: Color(genre.color),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Center(
                             child: Icon(
-                              genre.icon,
+                              IconUtils.getIconFromCodePoint(genre.icon),
                               color: CupertinoColors.white,
                               size: 20,
                             ),
@@ -162,9 +191,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               context,
                               Genre(
                                 title: '',
-                                color: CupertinoColors.systemRed,
-                                icon: CupertinoIcons.list_bullet,
+                                color: CupertinoColors.systemRed.value,
+                                icon: CupertinoIcons.list_bullet.codePoint,
                                 defaultGenre: false,
+                                createdAt: DateTime.now(),
+                                updatedAt: DateTime.now(),
                               ),
                             ),
                             child: const Text("Add List"),
@@ -179,17 +210,17 @@ class _MyHomePageState extends State<MyHomePage> {
                           padding: const EdgeInsets.symmetric(vertical: 15.0),
                           child: Text(genre.title),
                         ),
-                        additionalInfo: Text("0"),
+                        additionalInfo: const Text("dsnaj"),
                         leading: Container(
                           width: 34,
                           height: 34,
                           decoration: BoxDecoration(
-                            color: genre.color,
+                            color: Color(genre.color),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Center(
                             child: Icon(
-                              genre.icon,
+                              IconUtils.getIconFromCodePoint(genre.icon),
                               color: CupertinoColors.white,
                               size: 20,
                             ),

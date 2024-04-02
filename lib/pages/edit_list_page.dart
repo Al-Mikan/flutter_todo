@@ -1,4 +1,4 @@
-import 'package:clear_tasks/genre.dart';
+import 'package:clear_tasks/models/genre.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';

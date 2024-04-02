@@ -1,8 +1,9 @@
-import 'package:clear_tasks/genre.dart';
+import 'package:clear_tasks/models/genre.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import '../dummy_data.dart';
 import 'selected_myList_page.dart';
+import '../utils/icon_utils.dart';
 
 class AddTaskPage extends StatefulWidget {
   const AddTaskPage({super.key});
@@ -273,12 +274,14 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: selectedMyList.color,
+                  color: Color(selectedMyList.color),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Center(
-                  child: Icon(selectedMyList.icon,
-                      color: CupertinoColors.white, size: 20),
+                  child: Icon(
+                      IconUtils.getIconFromCodePoint(selectedMyList.icon),
+                      color: CupertinoColors.white,
+                      size: 20),
                 ),
               ),
               onTap: () => Navigator.push(
