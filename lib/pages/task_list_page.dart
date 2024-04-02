@@ -3,33 +3,49 @@ import 'package:flutter/cupertino.dart';
 import 'package:pull_down_button/pull_down_button.dart';
 
 import 'edit_list_page.dart';
+import '../repositories/genre_repository.dart';
 
 class TaskListPage extends StatefulWidget {
   const TaskListPage(
-      {super.key, required this.genre, required this.removeGenre});
+      {super.key, required this.genre, required this.genreRepository});
 
   final Genre genre;
-  final void Function(Genre) removeGenre;
+  final GenreRepository genreRepository;
 
   @override
   State<TaskListPage> createState() => _TaskListPageState();
 }
 
 class _TaskListPageState extends State<TaskListPage> {
+  Genre _selectedGenre = Genre(
+      title: "",
+      color: 0,
+      icon: 0,
+      defaultGenre: false,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now());
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedGenre = widget.genre;
+    // 初期化時に何か処理をする場合はここに記述
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.white,
       navigationBar: CupertinoNavigationBar(
-        middle: Text(widget.genre.title), // 選択されたジャンル名を表示
-        trailing: widget.genre.defaultGenre
+        middle: Text(_selectedGenre.title),
+        trailing: _selectedGenre.defaultGenre
             ? null
             : PullDownButton(
                 itemBuilder: (context) => [
                   PullDownMenuItem(
                     title: 'Show List Info',
                     icon: CupertinoIcons.info,
-                    onTap: () => _navigateToEditList(context, widget.genre),
+                    onTap: () => _navigateToEditList(context, _selectedGenre),
                   ),
                   PullDownMenuItem(
                     title: 'Delete List',
@@ -46,7 +62,6 @@ class _TaskListPageState extends State<TaskListPage> {
                   child: const Icon(CupertinoIcons.ellipsis_circle),
                 ),
               ),
-
         border: null,
         backgroundColor: CupertinoColors.white,
       ),
@@ -62,9 +77,12 @@ class _TaskListPageState extends State<TaskListPage> {
       CupertinoPageRoute(
         builder: (context) => EditListPage(
           genre: genre,
+          genreRepository: widget.genreRepository,
         ),
       ),
-    );
+    ).then((value) => setState(() {
+          _selectedGenre = value;
+        }));
   }
 
   void _showDialog() {
@@ -77,12 +95,13 @@ class _TaskListPageState extends State<TaskListPage> {
             actions: [
               CupertinoDialogAction(
                 child: const Text('Cancel'),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => {Navigator.pop(context)},
               ),
               CupertinoDialogAction(
                 isDestructiveAction: true,
-                onPressed: () {
-                  widget.removeGenre(widget.genre);
+                onPressed: () async {
+                  await widget.genreRepository.removeGenre(widget.genre);
+                  if (!mounted) return;
                   Navigator.popUntil(context, ModalRoute.withName('/'));
                 },
                 child: const Text('Delete'),

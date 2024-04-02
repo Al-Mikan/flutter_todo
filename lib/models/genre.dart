@@ -13,7 +13,8 @@ class Genre {
   late DateTime updatedAt;
 
   Genre({
-    this.id = 0, // IsarはautoIncrementなIDを扱うので、デフォルト値は通常必要ありませんが、初期化のために0を設定します
+    this.id = Isar
+        .autoIncrement, // IsarはautoIncrementなIDを扱うので、デフォルト値は通常必要ありませんが、初期化のために0を設定します
     required this.title,
     required this.color,
     required this.icon,

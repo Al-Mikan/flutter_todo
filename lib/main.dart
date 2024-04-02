@@ -8,7 +8,7 @@ import 'models/genre.dart';
 import 'models/task.dart';
 import 'pages/task_list_page.dart';
 import 'pages/add_task_page.dart';
-import 'dummy_data.dart';
+// import 'dummy_data.dart';
 
 import 'utils/icon_utils.dart';
 import 'repositories/genre_repository.dart';
@@ -54,6 +54,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    _loadLists();
+  }
+
   List<Genre> genres = [
     Genre(
         title: 'Today',
@@ -91,6 +97,14 @@ class _MyHomePageState extends State<MyHomePage> {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now()),
   ];
+  List<Genre> myLists = [];
+
+  Future<void> _loadLists() async {
+    final loadedLists = await widget.genreRepository.getAllGenres();
+    setState(() {
+      myLists = loadedLists;
+    });
+  }
 
   void _navigateToTaskList(BuildContext context, Genre genre) {
     Navigator.push(
@@ -98,21 +112,26 @@ class _MyHomePageState extends State<MyHomePage> {
       CupertinoPageRoute(
         builder: (context) => TaskListPage(
           genre: genre,
-          removeGenre: _removeGenre,
+          genreRepository: widget.genreRepository,
         ),
       ),
-    );
+    ).then((value) {
+      _loadLists();
+    });
   }
 
-  void _navigateToEditList(BuildContext context, Genre genre) {
+  void _navigateToEditList(BuildContext context) {
     Navigator.push(
       context,
       CupertinoPageRoute(
         builder: (context) => EditListPage(
-          genre: genre,
+          genre: null,
+          genreRepository: widget.genreRepository,
         ),
       ),
-    );
+    ).then((value) {
+      _loadLists();
+    });
   }
 
   void _navigateToTaskAddPage(BuildContext context) {
@@ -121,15 +140,8 @@ class _MyHomePageState extends State<MyHomePage> {
       CupertinoPageRoute(
         builder: (context) => const AddTaskPage(),
       ),
-    );
-  }
-
-  void _removeGenre(Genre genre) {
-    setState(() {
-      final index = genres.indexWhere((element) => element == genre);
-      if (index != -1) {
-        genres.removeAt(index);
-      }
+    ).then((value) {
+      _loadLists();
     });
   }
 
@@ -189,14 +201,6 @@ class _MyHomePageState extends State<MyHomePage> {
                             padding: EdgeInsets.zero,
                             onPressed: () => _navigateToEditList(
                               context,
-                              Genre(
-                                title: '',
-                                color: CupertinoColors.systemRed.value,
-                                icon: CupertinoIcons.list_bullet.codePoint,
-                                defaultGenre: false,
-                                createdAt: DateTime.now(),
-                                updatedAt: DateTime.now(),
-                              ),
                             ),
                             child: const Text("Add List"),
                           ),

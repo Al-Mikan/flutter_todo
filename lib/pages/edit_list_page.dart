@@ -1,29 +1,30 @@
 import 'package:clear_tasks/models/genre.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
+import 'package:clear_tasks/main.dart';
 import 'task_list_page.dart';
+import '../repositories/genre_repository.dart';
 
 class EditListPage extends StatefulWidget {
-  const EditListPage({super.key, required this.genre});
+  const EditListPage(
+      {super.key, required this.genre, required this.genreRepository});
 
-  final Genre genre;
+  final Genre? genre;
+  final GenreRepository genreRepository;
 
   @override
   State<EditListPage> createState() => _EditListPageState();
 }
 
 class _EditListPageState extends State<EditListPage> {
-  late TextEditingController _listNameController =
-      TextEditingController(text: widget.genre.title);
+  late TextEditingController _listNameController;
   Color selectedColor = CupertinoColors.systemRed; // 選択された色を保持する変数
   IconData selectedIcon = CupertinoIcons.list_bullet; // 選択されたアイコンを保持する変数
 
   @override
   void initState() {
     super.initState();
-    _listNameController = TextEditingController(text: widget.genre.title);
+    _listNameController = TextEditingController(text: widget.genre?.title);
     _listNameController.addListener(_updateState);
   }
 
@@ -40,9 +41,19 @@ class _EditListPageState extends State<EditListPage> {
     });
   }
 
+  void _udpateList(isCreatingNewList, Genre list, listId) async {
+    if (!isCreatingNewList) {
+      list.id = listId;
+    }
+    await widget.genreRepository.addGenre(list);
+    if (mounted) {
+      Navigator.pop(context, list);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isCreatingNewList = widget.genre.title.isEmpty;
+    final isCreatingNewList = widget.genre == null;
 
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.extraLightBackgroundGray,
@@ -57,14 +68,24 @@ class _EditListPageState extends State<EditListPage> {
         ),
         trailing: CupertinoButton(
           onPressed: _listNameController.text.isNotEmpty
-              ? () => Navigator.pop(context)
+              ? () => {
+                    _udpateList(
+                        isCreatingNewList,
+                        Genre(
+                            title: _listNameController.text,
+                            color: selectedColor.value,
+                            icon: selectedIcon.codePoint,
+                            defaultGenre: false,
+                            createdAt: DateTime.now(),
+                            updatedAt: DateTime.now()),
+                        widget.genre?.id),
+                  }
               : null,
           padding: EdgeInsets.zero,
           child: Text(
             'Done',
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              // テキストが空の場合は色を薄くする
               color: _listNameController.text.isNotEmpty
                   ? CupertinoColors.activeBlue
                   : CupertinoColors.inactiveGray,
