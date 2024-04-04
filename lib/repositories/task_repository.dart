@@ -12,8 +12,18 @@ class TaskRepository {
     return tasks;
   }
 
-  Future<List<Task>> getTasksByGenreId(int genreId) async {
-    final tasks = await _isar.tasks.filter().genreIdEqualTo(genreId).findAll();
+  Future<List<Task>> getIncompleteTasks() async {
+    final tasks =
+        await _isar.tasks.filter().isCompletedEqualTo(false).findAll();
+    return tasks;
+  }
+
+  Future<List<Task>> getIncompleteTasksByGenreId(int genreId) async {
+    final tasks = await _isar.tasks
+        .filter()
+        .genreIdEqualTo(genreId)
+        .isCompletedEqualTo(false)
+        .findAll();
     return tasks;
   }
 

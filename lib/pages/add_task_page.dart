@@ -10,12 +10,12 @@ import '../repositories/task_repository.dart';
 class AddTaskPage extends StatefulWidget {
   AddTaskPage(
       {super.key,
-      required this.myLists,
+      required this.selectedMyList,
       required this.genreRepository,
       required this.taskRepository});
 
   //引数にlist
-  final List<Genre> myLists;
+  Genre selectedMyList;
   final GenreRepository genreRepository;
   final TaskRepository taskRepository;
 
@@ -32,14 +32,20 @@ class _AddTaskPageState extends State<AddTaskPage> {
   DateTime selectedDate = DateTime.now();
   DateTime selectedTime = DateTime.now();
 
-  Genre? selectedMyList;
+  List<Genre> myLists = [];
 
   @override
   void initState() {
     super.initState();
-    selectedMyList = widget.myLists[0];
-    // テキストフィールドの状態が変更されたときにUIを更新する
+    _loadLists();
     _titleController.addListener(_updateState);
+  }
+
+  Future<void> _loadLists() async {
+    final loadedLists = await widget.genreRepository.getAllGenres();
+    setState(() {
+      myLists = loadedLists;
+    });
   }
 
   @override
@@ -113,7 +119,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                     date: isDateSelected ? selectedDate : null,
                     time: isTimeSelected ? selectedTime : null,
                     star: isStarSelected,
-                    genreId: selectedMyList!.id,
+                    genreId: widget.selectedMyList.id,
                     isCompleted: false,
                     createdAt: DateTime.now(),
                     updatedAt: DateTime.now(),
@@ -298,17 +304,18 @@ class _AddTaskPageState extends State<AddTaskPage> {
               backgroundColor: CupertinoColors.white,
               title: const Text("List"),
               trailing: const CupertinoListTileChevron(),
-              additionalInfo: Text(selectedMyList!.title),
+              additionalInfo: Text(widget.selectedMyList.title),
               leading: Container(
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: Color(selectedMyList!.color),
+                  color: Color(widget.selectedMyList.color),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Center(
                   child: Icon(
-                      IconUtils.getIconFromCodePoint(selectedMyList!.icon),
+                      IconUtils.getIconFromCodePoint(
+                          widget.selectedMyList.icon),
                       color: CupertinoColors.white,
                       size: 20),
                 ),
@@ -317,11 +324,11 @@ class _AddTaskPageState extends State<AddTaskPage> {
                   context,
                   CupertinoPageRoute(
                     builder: (context) => SelectListPage(
-                      myList: widget.myLists,
-                      onSelected: selectedMyList!,
+                      myList: myLists,
+                      onSelected: widget.selectedMyList,
                       setSelected: (selectedGenre) {
                         setState(() {
-                          selectedMyList = selectedGenre;
+                          widget.selectedMyList = selectedGenre;
                         });
                       },
                     ),

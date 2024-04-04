@@ -106,9 +106,17 @@ class _MyHomePageState extends State<MyHomePage> {
         updatedAt: DateTime.now()),
   ];
   List<Genre> myLists = [];
+  Map taskCount = {};
 
   Future<void> _loadLists() async {
     final loadedLists = await widget.genreRepository.getAllGenres();
+    for (var genre in loadedLists) {
+      final tasks =
+          await widget.taskRepository.getIncompleteTasksByGenreId(genre.id);
+      setState(() {
+        taskCount[genre.id] = tasks.length;
+      });
+    }
     setState(() {
       myLists = loadedLists;
     });
@@ -149,7 +157,7 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       CupertinoPageRoute(
         builder: (context) => AddTaskPage(
-            myLists: myLists,
+            selectedMyList: myLists[0],
             genreRepository: widget.genreRepository,
             taskRepository: widget.taskRepository),
       ),
@@ -227,7 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           padding: const EdgeInsets.symmetric(vertical: 15.0),
                           child: Text(genre.title),
                         ),
-                        additionalInfo: const Text("dsnaj"),
+                        additionalInfo: Text('${taskCount[genre.id] ?? 0}'),
                         leading: Container(
                           width: 34,
                           height: 34,

@@ -2,13 +2,14 @@ import 'package:clear_tasks/models/genre.dart';
 import 'package:clear_tasks/models/task.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pull_down_button/pull_down_button.dart';
 
 import 'edit_list_page.dart';
 import 'edit_task_page.dart';
 import '../repositories/genre_repository.dart';
 import '../repositories/task_repository.dart';
+import '../widgets/add_task_button.dart';
+import './add_task_page.dart';
 
 class TaskListPage extends StatefulWidget {
   const TaskListPage({
@@ -55,8 +56,8 @@ class _TaskListPageState extends State<TaskListPage> {
   }
 
   Future<void> _loadTasks() async {
-    final loadedTasks =
-        await widget.taskRepository.getTasksByGenreId(_selectedGenre.id);
+    final loadedTasks = await widget.taskRepository
+        .getIncompleteTasksByGenreId(_selectedGenre.id);
     setState(() {
       tasks = loadedTasks;
     });
@@ -95,103 +96,127 @@ class _TaskListPageState extends State<TaskListPage> {
         border: null,
         backgroundColor: CupertinoColors.white,
       ),
-      child: ListView.builder(
-        itemCount: tasks.length,
-        itemBuilder: (context, index) {
-          final task = tasks[index];
-          return Container(
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.black12)),
-            ),
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                print('Tapped on task ${task.title}');
-                _navigateToEditTask(context, task);
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CupertinoButton(
-                      onPressed: () {
-                        setState(() {
-                          task.isCompleted = !task.isCompleted;
-                        });
-                      },
-                      padding: EdgeInsets.zero,
-                      child: Container(
-                        width: 30,
-                        height: 30,
-                        child: task.isCompleted
-                            ? const Icon(
-                                CupertinoIcons.circle_fill,
-                                color: CupertinoColors.activeBlue,
-                              )
-                            : const Icon(CupertinoIcons.circle,
-                                color: CupertinoColors.systemGrey4),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10.0),
-                      child: Column(
+      child: SafeArea(
+        child: Stack(
+          children: [
+            ListView.builder(
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                final task = tasks[index];
+                return Container(
+                  decoration: const BoxDecoration(
+                    border: Border(bottom: BorderSide(color: Colors.black12)),
+                  ),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      _navigateToEditTask(context, task);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            task.title,
-                            style: TextStyle(
-                                fontSize: 18.0,
-                                color: task.isCompleted
-                                    ? CupertinoColors.systemGrey
-                                    : Colors.black),
-                          ),
-                          // if (task.notes.isNotEmpty)
-                          //   const SizedBox(height: 5.0),
-                          if (task.notes.isNotEmpty)
-                            Text(
-                              task.notes,
-                              style: const TextStyle(
-                                  color: CupertinoColors.systemGrey),
+                          CupertinoButton(
+                            onPressed: () {
+                              setState(() {
+                                task.isCompleted = !task.isCompleted;
+                              });
+                            },
+                            padding: EdgeInsets.zero,
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              child: task.isCompleted
+                                  ? const Icon(
+                                      CupertinoIcons.circle_fill,
+                                      color: CupertinoColors.activeBlue,
+                                    )
+                                  : const Icon(CupertinoIcons.circle,
+                                      color: CupertinoColors.systemGrey4),
                             ),
-                          Row(
-                            children: [
-                              if (task.date != null)
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
                                 Text(
-                                  "${task.date?.year}/${task.date?.month}/${task.date?.day}",
-                                  style: const TextStyle(
-                                      color: CupertinoColors.systemGrey),
+                                  task.title,
+                                  style: TextStyle(
+                                      fontSize: 18.0,
+                                      color: task.isCompleted
+                                          ? CupertinoColors.systemGrey
+                                          : Colors.black),
                                 ),
-                              const SizedBox(width: 5.0),
-                              if (task.time != null)
-                                Text(
-                                  "${task.time?.hour}:${task.time?.minute}",
-                                  style: const TextStyle(
-                                      color: CupertinoColors.systemGrey),
-                                ),
-                            ],
-                          )
+                                // if (task.notes.isNotEmpty)
+                                //   const SizedBox(height: 5.0),
+                                if (task.notes.isNotEmpty)
+                                  Text(
+                                    task.notes,
+                                    style: const TextStyle(
+                                        color: CupertinoColors.systemGrey),
+                                  ),
+                                Row(
+                                  children: [
+                                    if (task.date != null)
+                                      Text(
+                                        "${task.date?.year}/${task.date?.month}/${task.date?.day}",
+                                        style: const TextStyle(
+                                            color: CupertinoColors.systemGrey),
+                                      ),
+                                    const SizedBox(width: 5.0),
+                                    if (task.time != null)
+                                      Text(
+                                        "${task.time?.hour}:${task.time?.minute}",
+                                        style: const TextStyle(
+                                            color: CupertinoColors.systemGrey),
+                                      ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                          const Spacer(),
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Icon(
+                              task.star ? CupertinoIcons.star_fill : null,
+                              color: CupertinoColors.systemYellow,
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Icon(
-                        task.star ? CupertinoIcons.star_fill : null,
-                        color: CupertinoColors.systemYellow,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
-          );
-        },
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: AddTaskButton(
+                  onPressed: () => _navigateToTaskAddPage(context)),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  void _navigateToTaskAddPage(BuildContext context) {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => AddTaskPage(
+            selectedMyList: _selectedGenre,
+            genreRepository: widget.genreRepository,
+            taskRepository: widget.taskRepository),
+      ),
+    ).then((value) => _loadTasks());
   }
 
   void _navigateToEditList(BuildContext context, Genre genre) {
