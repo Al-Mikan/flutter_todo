@@ -7,38 +7,51 @@ import '../utils/icon_utils.dart';
 import '../repositories/genre_repository.dart';
 import '../repositories/task_repository.dart';
 
-class AddTaskPage extends StatefulWidget {
-  AddTaskPage(
+class EditTaskPage extends StatefulWidget {
+  const EditTaskPage(
       {super.key,
-      required this.myLists,
+      required this.task,
       required this.genreRepository,
       required this.taskRepository});
 
-  //引数にlist
-  final List<Genre> myLists;
+  final Task task;
   final GenreRepository genreRepository;
   final TaskRepository taskRepository;
 
   @override
-  State<AddTaskPage> createState() => _AddTaskPageState();
+  State<EditTaskPage> createState() => _EditTaskPageState();
 }
 
-class _AddTaskPageState extends State<AddTaskPage> {
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _notesController = TextEditingController();
+class _EditTaskPageState extends State<EditTaskPage> {
+  TextEditingController _titleController = TextEditingController();
+  TextEditingController _notesController = TextEditingController();
   bool isDateSelected = false;
   bool isTimeSelected = false;
   bool isStarSelected = false;
+
   DateTime selectedDate = DateTime.now();
   DateTime selectedTime = DateTime.now();
 
+  List<Genre> myLists = [];
   Genre? selectedMyList;
 
   @override
   void initState() {
     super.initState();
-    selectedMyList = widget.myLists[0];
-    // テキストフィールドの状態が変更されたときにUIを更新する
+    _loadLists().then((value) => {
+          setState(() {
+            selectedMyList = myLists.firstWhere(
+                (element) => element.id == widget.task.genreId,
+                orElse: () => myLists.first);
+          })
+        });
+    isDateSelected = widget.task.date != null;
+    isTimeSelected = widget.task.time != null;
+    selectedDate = widget.task.date ?? DateTime.now();
+    selectedTime = widget.task.time ?? DateTime.now();
+    isStarSelected = widget.task.star;
+    _titleController = TextEditingController(text: widget.task.title);
+    _notesController = TextEditingController(text: widget.task.notes);
     _titleController.addListener(_updateState);
   }
 
@@ -50,6 +63,13 @@ class _AddTaskPageState extends State<AddTaskPage> {
     super.dispose();
   }
 
+  Future<void> _loadLists() async {
+    final loadedLists = await widget.genreRepository.getAllGenres();
+    setState(() {
+      myLists = loadedLists;
+    });
+  }
+
   void _updateState() {
     setState(() {
       // setState内で何もしなくても、_titleController.textの状態が変わるたびに
@@ -57,7 +77,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
     });
   }
 
-  void addAciton(task) async {
+  void updateAciton(Task task) async {
     await widget.taskRepository.addTask(task);
     if (mounted) {
       Navigator.pop(context);
@@ -69,51 +89,24 @@ class _AddTaskPageState extends State<AddTaskPage> {
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.extraLightBackgroundGray,
       navigationBar: CupertinoNavigationBar(
-        middle: const Text("New task"),
+        middle: const Text("Edit task"),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Text('Cancel'),
           onPressed: () {
-            if (isDateSelected ||
-                isTimeSelected ||
-                isStarSelected ||
-                _titleController.text.isNotEmpty ||
-                _notesController.text.isNotEmpty) {
-              showCupertinoModalPopup(
-                context: context,
-                builder: (BuildContext context) => CupertinoActionSheet(
-                  actions: <CupertinoActionSheetAction>[
-                    CupertinoActionSheetAction(
-                      child: const Text('Discard Changes',
-                          style: TextStyle(color: CupertinoColors.systemRed)),
-                      onPressed: () {
-                        // アクションシートを閉じる
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ],
-                  cancelButton: CupertinoActionSheetAction(
-                    isDefaultAction: true,
-                    child: const Text('Cancel'),
-                    onPressed: () => Navigator.pop(context), // アクションシートを閉じる
-                  ),
-                ),
-              );
-            } else {
-              Navigator.pop(context);
-            }
+            Navigator.pop(context);
           },
         ),
         trailing: CupertinoButton(
           onPressed: _titleController.text.isNotEmpty
-              ? () => addAciton(Task(
+              ? () => updateAciton(Task(
+                    id: widget.task.id,
                     title: _titleController.text,
                     notes: _notesController.text,
                     date: isDateSelected ? selectedDate : null,
                     time: isTimeSelected ? selectedTime : null,
                     star: isStarSelected,
-                    genreId: selectedMyList!.id,
+                    genreId: selectedMyList?.id ?? widget.task.genreId,
                     isCompleted: false,
                     createdAt: DateTime.now(),
                     updatedAt: DateTime.now(),
@@ -121,7 +114,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
               : null,
           padding: EdgeInsets.zero,
           child: Text(
-            'Add',
+            'Done',
             style: TextStyle(
               fontWeight: FontWeight.w600,
               // テキストが空の場合は色を薄くする
@@ -143,6 +136,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
             _buildSelectDateTimeField(),
             _buildSelectListField(),
             _buildFlagSwitchField(),
+            _buildDeleteField(),
           ],
         ),
       ),
@@ -282,7 +276,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 } else {
                   null;
                 }
-              }, // 何もしない場合はこのように記述
+              },
             )
           ]),
     );
@@ -298,34 +292,38 @@ class _AddTaskPageState extends State<AddTaskPage> {
               backgroundColor: CupertinoColors.white,
               title: const Text("List"),
               trailing: const CupertinoListTileChevron(),
-              additionalInfo: Text(selectedMyList!.title),
+              additionalInfo: Text(selectedMyList?.title ?? ""),
               leading: Container(
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: Color(selectedMyList!.color),
+                  color: Color(selectedMyList?.color ?? 0),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Center(
                   child: Icon(
-                      IconUtils.getIconFromCodePoint(selectedMyList!.icon),
+                      IconUtils.getIconFromCodePoint(selectedMyList?.icon ?? 0),
                       color: CupertinoColors.white,
                       size: 20),
                 ),
               ),
-              onTap: () => Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                    builder: (context) => SelectListPage(
-                      myList: widget.myLists,
-                      onSelected: selectedMyList!,
-                      setSelected: (selectedGenre) {
-                        setState(() {
-                          selectedMyList = selectedGenre;
-                        });
-                      },
-                    ),
-                  )),
+              onTap: () {
+                if (selectedMyList != null) {
+                  Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (context) => SelectListPage(
+                          myList: myLists,
+                          onSelected: selectedMyList ?? myLists.first,
+                          setSelected: (selectedGenre) {
+                            setState(() {
+                              selectedMyList = selectedGenre;
+                            });
+                          },
+                        ),
+                      ));
+                }
+              },
             ),
           ]),
     );
@@ -359,6 +357,57 @@ class _AddTaskPageState extends State<AddTaskPage> {
           ),
         ),
       ]),
+    );
+  }
+
+  Widget _buildDeleteField() {
+    return Container(
+      width: double.infinity,
+      height: 46,
+      margin: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: CupertinoColors.white,
+      ),
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        child: const Text(
+          'Delete',
+          style: TextStyle(
+              color: CupertinoColors.systemRed, fontWeight: FontWeight.bold),
+        ),
+        onPressed: () {
+          showCupertinoDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return CupertinoAlertDialog(
+                title: const Text('Confirm Delete'),
+                content:
+                    const Text('Are you sure you want to delete this item?'),
+                actions: <Widget>[
+                  CupertinoDialogAction(
+                    child: const Text('Cancel'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  CupertinoDialogAction(
+                    isDestructiveAction: true,
+                    onPressed: () async {
+                      await widget.taskRepository.removeTask(widget.task);
+                      if (mounted) {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text('Delete'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      ),
     );
   }
 

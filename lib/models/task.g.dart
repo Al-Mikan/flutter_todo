@@ -27,33 +27,38 @@ const TaskSchema = CollectionSchema(
       name: r'date',
       type: IsarType.dateTime,
     ),
-    r'isCompleted': PropertySchema(
+    r'genreId': PropertySchema(
       id: 2,
+      name: r'genreId',
+      type: IsarType.long,
+    ),
+    r'isCompleted': PropertySchema(
+      id: 3,
       name: r'isCompleted',
       type: IsarType.bool,
     ),
     r'notes': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'notes',
       type: IsarType.string,
     ),
     r'star': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'star',
       type: IsarType.bool,
     ),
     r'time': PropertySchema(
-      id: 5,
+      id: 6,
       name: r'time',
       type: IsarType.dateTime,
     ),
     r'title': PropertySchema(
-      id: 6,
+      id: 7,
       name: r'title',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 7,
+      id: 8,
       name: r'updatedAt',
       type: IsarType.dateTime,
     )
@@ -64,14 +69,7 @@ const TaskSchema = CollectionSchema(
   deserializeProp: _taskDeserializeProp,
   idName: r'id',
   indexes: {},
-  links: {
-    r'list': LinkSchema(
-      id: 585643389368395833,
-      name: r'list',
-      target: r'Genre',
-      single: true,
-    )
-  },
+  links: {},
   embeddedSchemas: {},
   getId: _taskGetId,
   getLinks: _taskGetLinks,
@@ -98,12 +96,13 @@ void _taskSerialize(
 ) {
   writer.writeDateTime(offsets[0], object.createdAt);
   writer.writeDateTime(offsets[1], object.date);
-  writer.writeBool(offsets[2], object.isCompleted);
-  writer.writeString(offsets[3], object.notes);
-  writer.writeBool(offsets[4], object.star);
-  writer.writeDateTime(offsets[5], object.time);
-  writer.writeString(offsets[6], object.title);
-  writer.writeDateTime(offsets[7], object.updatedAt);
+  writer.writeLong(offsets[2], object.genreId);
+  writer.writeBool(offsets[3], object.isCompleted);
+  writer.writeString(offsets[4], object.notes);
+  writer.writeBool(offsets[5], object.star);
+  writer.writeDateTime(offsets[6], object.time);
+  writer.writeString(offsets[7], object.title);
+  writer.writeDateTime(offsets[8], object.updatedAt);
 }
 
 Task _taskDeserialize(
@@ -112,16 +111,18 @@ Task _taskDeserialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = Task();
-  object.createdAt = reader.readDateTime(offsets[0]);
-  object.date = reader.readDateTimeOrNull(offsets[1]);
-  object.id = id;
-  object.isCompleted = reader.readBool(offsets[2]);
-  object.notes = reader.readString(offsets[3]);
-  object.star = reader.readBool(offsets[4]);
-  object.time = reader.readDateTimeOrNull(offsets[5]);
-  object.title = reader.readString(offsets[6]);
-  object.updatedAt = reader.readDateTime(offsets[7]);
+  final object = Task(
+    createdAt: reader.readDateTime(offsets[0]),
+    date: reader.readDateTimeOrNull(offsets[1]),
+    genreId: reader.readLong(offsets[2]),
+    id: id,
+    isCompleted: reader.readBool(offsets[3]),
+    notes: reader.readString(offsets[4]),
+    star: reader.readBool(offsets[5]),
+    time: reader.readDateTimeOrNull(offsets[6]),
+    title: reader.readString(offsets[7]),
+    updatedAt: reader.readDateTime(offsets[8]),
+  );
   return object;
 }
 
@@ -137,16 +138,18 @@ P _taskDeserializeProp<P>(
     case 1:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
-      return (reader.readBool(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 3:
-      return (reader.readString(offset)) as P;
-    case 4:
       return (reader.readBool(offset)) as P;
-    case 5:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 6:
+    case 4:
       return (reader.readString(offset)) as P;
+    case 5:
+      return (reader.readBool(offset)) as P;
+    case 6:
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 7:
+      return (reader.readString(offset)) as P;
+    case 8:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -158,12 +161,11 @@ Id _taskGetId(Task object) {
 }
 
 List<IsarLinkBase<dynamic>> _taskGetLinks(Task object) {
-  return [object.list];
+  return [];
 }
 
 void _taskAttach(IsarCollection<dynamic> col, Id id, Task object) {
   object.id = id;
-  object.list.attach(col, col.isar.collection<Genre>(), r'list', id);
 }
 
 extension TaskQueryWhereSort on QueryBuilder<Task, Task, QWhere> {
@@ -355,6 +357,58 @@ extension TaskQueryFilter on QueryBuilder<Task, Task, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'date',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> genreIdEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'genreId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> genreIdGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'genreId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> genreIdLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'genreId',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterFilterCondition> genreIdBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'genreId',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -814,19 +868,7 @@ extension TaskQueryFilter on QueryBuilder<Task, Task, QFilterCondition> {
 
 extension TaskQueryObject on QueryBuilder<Task, Task, QFilterCondition> {}
 
-extension TaskQueryLinks on QueryBuilder<Task, Task, QFilterCondition> {
-  QueryBuilder<Task, Task, QAfterFilterCondition> list(FilterQuery<Genre> q) {
-    return QueryBuilder.apply(this, (query) {
-      return query.link(q, r'list');
-    });
-  }
-
-  QueryBuilder<Task, Task, QAfterFilterCondition> listIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.linkLength(r'list', 0, true, 0, true);
-    });
-  }
-}
+extension TaskQueryLinks on QueryBuilder<Task, Task, QFilterCondition> {}
 
 extension TaskQuerySortBy on QueryBuilder<Task, Task, QSortBy> {
   QueryBuilder<Task, Task, QAfterSortBy> sortByCreatedAt() {
@@ -850,6 +892,18 @@ extension TaskQuerySortBy on QueryBuilder<Task, Task, QSortBy> {
   QueryBuilder<Task, Task, QAfterSortBy> sortByDateDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'date', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterSortBy> sortByGenreId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'genreId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterSortBy> sortByGenreIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'genreId', Sort.desc);
     });
   }
 
@@ -951,6 +1005,18 @@ extension TaskQuerySortThenBy on QueryBuilder<Task, Task, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Task, Task, QAfterSortBy> thenByGenreId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'genreId', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Task, Task, QAfterSortBy> thenByGenreIdDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'genreId', Sort.desc);
+    });
+  }
+
   QueryBuilder<Task, Task, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -1049,6 +1115,12 @@ extension TaskQueryWhereDistinct on QueryBuilder<Task, Task, QDistinct> {
     });
   }
 
+  QueryBuilder<Task, Task, QDistinct> distinctByGenreId() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'genreId');
+    });
+  }
+
   QueryBuilder<Task, Task, QDistinct> distinctByIsCompleted() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isCompleted');
@@ -1104,6 +1176,12 @@ extension TaskQueryProperty on QueryBuilder<Task, Task, QQueryProperty> {
   QueryBuilder<Task, DateTime?, QQueryOperations> dateProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'date');
+    });
+  }
+
+  QueryBuilder<Task, int, QQueryOperations> genreIdProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'genreId');
     });
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:clear_tasks/main.dart';
 import 'task_list_page.dart';
 import '../repositories/genre_repository.dart';
+import '../utils/icon_utils.dart';
 
 class EditListPage extends StatefulWidget {
   const EditListPage(
@@ -18,12 +19,20 @@ class EditListPage extends StatefulWidget {
 
 class _EditListPageState extends State<EditListPage> {
   late TextEditingController _listNameController;
-  Color selectedColor = CupertinoColors.systemRed; // 選択された色を保持する変数
-  IconData selectedIcon = CupertinoIcons.list_bullet; // 選択されたアイコンを保持する変数
+
+  late Color selectedColor; // 選択された色を保持する変数
+  late IconData selectedIcon; // 選択されたアイコンを保持する変数
 
   @override
   void initState() {
     super.initState();
+    if (widget.genre != null) {
+      selectedColor = Color(widget.genre!.color);
+      selectedIcon = IconUtils.getIconFromCodePoint(widget.genre!.icon);
+    } else {
+      selectedColor = colors[0];
+      selectedIcon = icons[0];
+    }
     _listNameController = TextEditingController(text: widget.genre?.title);
     _listNameController.addListener(_updateState);
   }
@@ -60,11 +69,11 @@ class _EditListPageState extends State<EditListPage> {
       navigationBar: CupertinoNavigationBar(
         middle: Text(isCreatingNewList
             ? 'Create new list'
-            : 'Edit List “${widget.genre}”'),
+            : 'Edit List “${widget.genre?.title}”'),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Text('Cancel'),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context, widget.genre),
         ),
         trailing: CupertinoButton(
           onPressed: _listNameController.text.isNotEmpty
@@ -73,8 +82,8 @@ class _EditListPageState extends State<EditListPage> {
                         isCreatingNewList,
                         Genre(
                             title: _listNameController.text,
-                            color: selectedColor.value,
-                            icon: selectedIcon.codePoint,
+                            color: selectedColor!.value,
+                            icon: selectedIcon!.codePoint,
                             defaultGenre: false,
                             createdAt: DateTime.now(),
                             updatedAt: DateTime.now()),

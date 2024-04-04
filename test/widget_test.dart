@@ -10,16 +10,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:clear_tasks/main.dart';
 import 'package:clear_tasks/repositories/genre_repository.dart';
+import 'package:clear_tasks/repositories/task_repository.dart';
 
-class MockGenreRepository extends Mock implements GenreRepository {}
+class MockGenreRepositoryGenre extends Mock implements GenreRepository {}
+
+class MockTaskRepositoryGenre extends Mock implements TaskRepository {}
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // GenreRepositoryのモックインスタンスを作成
-    final mockGenreRepository = MockGenreRepository();
+    final mockGenreRepositoryGenre = MockGenreRepositoryGenre();
+    final mockGenreRepositoryTask = MockTaskRepositoryGenre();
 
     // モックのGenreRepositoryをMyAppに渡してウィジェットを構築
-    await tester.pumpWidget(MyApp(genreRepository: mockGenreRepository));
+    await tester.pumpWidget(MyApp(
+        genreRepository: mockGenreRepositoryGenre,
+        taskRepository: mockGenreRepositoryTask));
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

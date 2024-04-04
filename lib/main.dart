@@ -12,6 +12,7 @@ import 'pages/add_task_page.dart';
 
 import 'utils/icon_utils.dart';
 import 'repositories/genre_repository.dart';
+import 'repositories/task_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,19 +24,24 @@ void main() async {
 
   // GenreRepositoryのインスタンスを作成
   final genreRepository = GenreRepository(isar);
+  final taskRepository = TaskRepository(isar);
 
-  runApp(MyApp(genreRepository: genreRepository));
+  runApp(
+      MyApp(genreRepository: genreRepository, taskRepository: taskRepository));
 }
 
 class MyApp extends StatelessWidget {
   final GenreRepository genreRepository;
+  final TaskRepository taskRepository;
 
-  const MyApp({super.key, required this.genreRepository});
+  const MyApp(
+      {super.key, required this.genreRepository, required this.taskRepository});
 
   @override
   Widget build(BuildContext context) {
     return CupertinoApp(
-      home: MyHomePage(genreRepository: genreRepository),
+      home: MyHomePage(
+          genreRepository: genreRepository, taskRepository: taskRepository),
       theme: const CupertinoThemeData(
         brightness: Brightness.light,
         primaryColor: CupertinoColors.systemBlue,
@@ -46,8 +52,10 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   final GenreRepository genreRepository;
+  final TaskRepository taskRepository;
 
-  const MyHomePage({super.key, required this.genreRepository});
+  const MyHomePage(
+      {super.key, required this.genreRepository, required this.taskRepository});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -112,7 +120,9 @@ class _MyHomePageState extends State<MyHomePage> {
       CupertinoPageRoute(
         builder: (context) => TaskListPage(
           genre: genre,
+          myLists: myLists,
           genreRepository: widget.genreRepository,
+          taskRepository: widget.taskRepository,
         ),
       ),
     ).then((value) {
@@ -138,7 +148,10 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.push(
       context,
       CupertinoPageRoute(
-        builder: (context) => const AddTaskPage(),
+        builder: (context) => AddTaskPage(
+            myLists: myLists,
+            genreRepository: widget.genreRepository,
+            taskRepository: widget.taskRepository),
       ),
     ).then((value) {
       _loadLists();
