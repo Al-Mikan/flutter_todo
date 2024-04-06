@@ -8,6 +8,7 @@ import 'models/genre.dart';
 import 'models/task.dart';
 import 'pages/task_list_page.dart';
 import 'pages/add_task_page.dart';
+import 'pages/task_default_list_page.dart';
 // import 'dummy_data.dart';
 
 import 'utils/icon_utils.dart';
@@ -73,40 +74,36 @@ class _MyHomePageState extends State<MyHomePage> {
         title: 'Today',
         color: CupertinoColors.systemRed.value,
         icon: CupertinoIcons.calendar_today.codePoint,
-        defaultGenre: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now()),
     Genre(
         title: 'Scheduled',
         color: CupertinoColors.systemBlue.value,
         icon: CupertinoIcons.paperclip.codePoint,
-        defaultGenre: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now()),
     Genre(
         title: 'All',
         color: CupertinoColors.black.value,
         icon: CupertinoIcons.tray_fill.codePoint,
-        defaultGenre: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now()),
     Genre(
         title: 'Star',
         color: CupertinoColors.systemYellow.value,
         icon: CupertinoIcons.star_fill.codePoint,
-        defaultGenre: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now()),
     Genre(
         title: 'Completed',
         color: CupertinoColors.systemGrey.value,
         icon: CupertinoIcons.check_mark.codePoint,
-        defaultGenre: true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now()),
   ];
   List<Genre> myLists = [];
   Map taskCount = {};
+  Map defaulTaskCount = {};
 
   Future<void> _loadLists() async {
     final loadedLists = await widget.genreRepository.getAllGenres();
@@ -115,6 +112,12 @@ class _MyHomePageState extends State<MyHomePage> {
           await widget.taskRepository.getIncompleteTasksByGenreId(genre.id);
       setState(() {
         taskCount[genre.id] = tasks.length;
+      });
+    }
+    for (var genre in genres) {
+      final tasks = await widget.taskRepository.getDefaultListTasks(genre);
+      setState(() {
+        defaulTaskCount[genre] = tasks.length;
       });
     }
     setState(() {
@@ -128,6 +131,23 @@ class _MyHomePageState extends State<MyHomePage> {
       CupertinoPageRoute(
         builder: (context) => TaskListPage(
           genre: genre,
+          isDefaultGenre: false,
+          myLists: myLists,
+          genreRepository: widget.genreRepository,
+          taskRepository: widget.taskRepository,
+        ),
+      ),
+    ).then((value) {
+      _loadLists();
+    });
+  }
+
+  void _navigateToDefalutTaskList(BuildContext context, Genre genre) {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => TaskDefaultListPage(
+          selectedGenre: genre,
           myLists: myLists,
           genreRepository: widget.genreRepository,
           taskRepository: widget.taskRepository,
@@ -189,7 +209,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         additionalInfo: genre.title == "Completed"
                             ? null
-                            : const Text("ndjs"),
+                            : Text(defaulTaskCount[genre.title]?.toString() ??
+                                '0'),
                         leading: Container(
                           width: 34,
                           height: 34,
@@ -205,7 +226,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                         ),
-                        onTap: () => _navigateToTaskList(context, genre),
+                        onTap: () => _navigateToDefalutTaskList(context, genre),
                         trailing: const CupertinoListTileChevron(),
                       );
                     }).toList(),

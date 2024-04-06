@@ -8,7 +8,6 @@ class Genre {
   late String title;
   late int color;
   late int icon;
-  late bool defaultGenre;
   late DateTime createdAt;
   late DateTime updatedAt;
 
@@ -18,7 +17,6 @@ class Genre {
     required this.title,
     required this.color,
     required this.icon,
-    required this.defaultGenre,
     required this.createdAt,
     required this.updatedAt,
   });

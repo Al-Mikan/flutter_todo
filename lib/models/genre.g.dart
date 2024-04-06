@@ -27,23 +27,18 @@ const GenreSchema = CollectionSchema(
       name: r'createdAt',
       type: IsarType.dateTime,
     ),
-    r'defaultGenre': PropertySchema(
-      id: 2,
-      name: r'defaultGenre',
-      type: IsarType.bool,
-    ),
     r'icon': PropertySchema(
-      id: 3,
+      id: 2,
       name: r'icon',
       type: IsarType.long,
     ),
     r'title': PropertySchema(
-      id: 4,
+      id: 3,
       name: r'title',
       type: IsarType.string,
     ),
     r'updatedAt': PropertySchema(
-      id: 5,
+      id: 4,
       name: r'updatedAt',
       type: IsarType.dateTime,
     )
@@ -80,10 +75,9 @@ void _genreSerialize(
 ) {
   writer.writeLong(offsets[0], object.color);
   writer.writeDateTime(offsets[1], object.createdAt);
-  writer.writeBool(offsets[2], object.defaultGenre);
-  writer.writeLong(offsets[3], object.icon);
-  writer.writeString(offsets[4], object.title);
-  writer.writeDateTime(offsets[5], object.updatedAt);
+  writer.writeLong(offsets[2], object.icon);
+  writer.writeString(offsets[3], object.title);
+  writer.writeDateTime(offsets[4], object.updatedAt);
 }
 
 Genre _genreDeserialize(
@@ -95,11 +89,10 @@ Genre _genreDeserialize(
   final object = Genre(
     color: reader.readLong(offsets[0]),
     createdAt: reader.readDateTime(offsets[1]),
-    defaultGenre: reader.readBool(offsets[2]),
-    icon: reader.readLong(offsets[3]),
+    icon: reader.readLong(offsets[2]),
     id: id,
-    title: reader.readString(offsets[4]),
-    updatedAt: reader.readDateTime(offsets[5]),
+    title: reader.readString(offsets[3]),
+    updatedAt: reader.readDateTime(offsets[4]),
   );
   return object;
 }
@@ -116,12 +109,10 @@ P _genreDeserializeProp<P>(
     case 1:
       return (reader.readDateTime(offset)) as P;
     case 2:
-      return (reader.readBool(offset)) as P;
-    case 3:
       return (reader.readLong(offset)) as P;
-    case 4:
+    case 3:
       return (reader.readString(offset)) as P;
-    case 5:
+    case 4:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -317,16 +308,6 @@ extension GenreQueryFilter on QueryBuilder<Genre, Genre, QFilterCondition> {
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<Genre, Genre, QAfterFilterCondition> defaultGenreEqualTo(
-      bool value) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'defaultGenre',
-        value: value,
       ));
     });
   }
@@ -646,18 +627,6 @@ extension GenreQuerySortBy on QueryBuilder<Genre, Genre, QSortBy> {
     });
   }
 
-  QueryBuilder<Genre, Genre, QAfterSortBy> sortByDefaultGenre() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'defaultGenre', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Genre, Genre, QAfterSortBy> sortByDefaultGenreDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'defaultGenre', Sort.desc);
-    });
-  }
-
   QueryBuilder<Genre, Genre, QAfterSortBy> sortByIcon() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'icon', Sort.asc);
@@ -717,18 +686,6 @@ extension GenreQuerySortThenBy on QueryBuilder<Genre, Genre, QSortThenBy> {
   QueryBuilder<Genre, Genre, QAfterSortBy> thenByCreatedAtDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'createdAt', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Genre, Genre, QAfterSortBy> thenByDefaultGenre() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'defaultGenre', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Genre, Genre, QAfterSortBy> thenByDefaultGenreDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'defaultGenre', Sort.desc);
     });
   }
 
@@ -794,12 +751,6 @@ extension GenreQueryWhereDistinct on QueryBuilder<Genre, Genre, QDistinct> {
     });
   }
 
-  QueryBuilder<Genre, Genre, QDistinct> distinctByDefaultGenre() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'defaultGenre');
-    });
-  }
-
   QueryBuilder<Genre, Genre, QDistinct> distinctByIcon() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'icon');
@@ -836,12 +787,6 @@ extension GenreQueryProperty on QueryBuilder<Genre, Genre, QQueryProperty> {
   QueryBuilder<Genre, DateTime, QQueryOperations> createdAtProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'createdAt');
-    });
-  }
-
-  QueryBuilder<Genre, bool, QQueryOperations> defaultGenreProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'defaultGenre');
     });
   }
 

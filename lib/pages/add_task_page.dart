@@ -253,7 +253,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
               title: const Text("Time"),
               subtitle: isTimeSelected
                   ? Text(
-                      DateFormat('HH:MM').format(selectedTime),
+                      DateFormat('hh:mm').format(selectedTime),
                       style: const TextStyle(color: CupertinoColors.activeBlue),
                     )
                   : null,
@@ -448,7 +448,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
                 onDateTimeChanged: (DateTime newDateTime) {
                   setState(() {
                     selectedTime = newDateTime;
-                    print(selectedTime);
                   });
                 },
               ),

@@ -82,9 +82,8 @@ class _EditListPageState extends State<EditListPage> {
                         isCreatingNewList,
                         Genre(
                             title: _listNameController.text,
-                            color: selectedColor!.value,
-                            icon: selectedIcon!.codePoint,
-                            defaultGenre: false,
+                            color: selectedColor.value,
+                            icon: selectedIcon.codePoint,
                             createdAt: DateTime.now(),
                             updatedAt: DateTime.now()),
                         widget.genre?.id),
