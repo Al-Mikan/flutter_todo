@@ -33,7 +33,10 @@ class _SignInPageState extends State<SignInPage> {
             children: [
               Row(),
               FutureBuilder(
-                future: Authentication.initializeFirebase(context: context),
+                future: Authentication.initializeFirebase(
+                    context: context,
+                    genreRepository: widget.genreRepository,
+                    taskRepository: widget.taskRepository),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Text('Error initializing Firebase');

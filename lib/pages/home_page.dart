@@ -1,5 +1,8 @@
 import 'package:clear_tasks/utils/icon_utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import '../models/genre.dart';
 import '../repositories/genre_repository.dart';
@@ -7,25 +10,35 @@ import '../repositories/task_repository.dart';
 import '../widgets/add_task_button.dart';
 import 'add_task_page.dart';
 import 'edit_list_page.dart';
+import 'sign_in_page.dart';
 import 'task_default_list_page.dart';
 import 'task_list_page.dart';
 
 class MyHomePage extends StatefulWidget {
   final GenreRepository genreRepository;
   final TaskRepository taskRepository;
+  final User _user;
 
   const MyHomePage(
-      {super.key, required this.genreRepository, required this.taskRepository});
+      {Key? key,
+      required this.genreRepository,
+      required this.taskRepository,
+      required User user})
+      : _user = user,
+        super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late User _user;
+  bool _isSigningOut = false;
   @override
   void initState() {
     super.initState();
     _loadLists();
+    _user = widget._user;
   }
 
   List<Genre> genres = [
@@ -145,6 +158,61 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _showAlertDialog(context, User user) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: const Text('Sign out'),
+          content: Column(
+            children: [
+              Text(user.displayName ?? ''),
+              const Text('Are you sure you want to sign out?'),
+            ],
+          ),
+          actions: [
+            CupertinoDialogAction(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            CupertinoDialogAction(
+              isDestructiveAction: true,
+              child: const Text(
+                'Sign out',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                _signOut(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _signOut(BuildContext context) async {
+    // BuildContextを引数に追加
+    setState(() {
+      _isSigningOut = true;
+    });
+    await FirebaseAuth.instance.signOut();
+    setState(() {
+      _isSigningOut = false;
+    });
+    // サインイン画面に遷移
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => SignInPage(
+          genreRepository: widget.genreRepository,
+          taskRepository: widget.taskRepository,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -156,6 +224,34 @@ class _MyHomePageState extends State<MyHomePage> {
               padding: const EdgeInsets.only(bottom: 60),
               child: ListView(
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () => _showAlertDialog(context, _user),
+                        child: _user.photoURL != null
+                            ? ClipOval(
+                                child: Image.network(
+                                  width: 40,
+                                  height: 40,
+                                  _user.photoURL!,
+                                ),
+                              )
+                            : const ClipOval(
+                                child: Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Icon(
+                                    Icons.person,
+                                    size: 60,
+                                    color: CupertinoColors.systemGrey,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
                   CupertinoListSection.insetGrouped(
                     backgroundColor: CupertinoColors.extraLightBackgroundGray,
                     header: const Text('Genre'),

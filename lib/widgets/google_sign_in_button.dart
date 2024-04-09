@@ -53,11 +53,11 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) => MyHomePage(
+                          user: user,
                           genreRepository: widget.genreRepository,
                           taskRepository: widget.taskRepository),
                     ),
                   );
-                  print("User: ${user.displayName}");
                 }
               },
               child: const Padding(
